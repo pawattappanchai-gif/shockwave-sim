@@ -5,7 +5,7 @@ const machVal = document.getElementById('machVal');
 const regimeText = document.getElementById('regimeText');
 const angleText = document.getElementById('angleText');
 
-const soundSpeed = 100;
+const soundSpeed = 100; // pixels per second
 let sourceX = 50;
 const sourceY = canvas.height / 2;
 let waveFronts = [];
@@ -22,6 +22,7 @@ function updateSim(now) {
   const mach = parseFloat(slider.value);
   const sourceSpeed = soundSpeed * mach;
 
+  // Update regime & angle text
   if (mach < 1) {
     regimeText.textContent = "Subsonic";
     angleText.textContent = "N/A (No Shockwave)";
@@ -35,20 +36,25 @@ function updateSim(now) {
     angleText.textContent = `${angleDeg}°`;
   }
 
+  // Move source
   sourceX += sourceSpeed * dt;
   if (sourceX > canvas.width - 50) {
     sourceX = 50;
     waveFronts = [];
   }
 
+  // Emit wave fronts periodically
   if (waveFronts.length === 0 || (sourceX - waveFronts[waveFronts.length - 1].x) > 15) {
     waveFronts.push({ x: sourceX, y: sourceY, r: 0 });
   }
 
+  // Expand wave fronts
   waveFronts.forEach(w => w.r += soundSpeed * dt);
 
+  // Clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Draw Wave Fronts
   ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
   ctx.lineWidth = 1.5;
   waveFronts.forEach(w => {
@@ -57,6 +63,7 @@ function updateSim(now) {
     ctx.stroke();
   });
 
+  // Draw Mach Cone lines if supersonic
   if (mach > 1) {
     const angleRad = Math.asin(1 / mach);
     const tanAngle = Math.tan(angleRad);
@@ -76,6 +83,7 @@ function updateSim(now) {
     ctx.stroke();
   }
 
+  // Draw Moving Source Dot
   ctx.fillStyle = '#f59e0b';
   ctx.beginPath();
   ctx.arc(sourceX, sourceY, 6, 0, Math.PI * 2);
